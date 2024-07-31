@@ -6,24 +6,24 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
-import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+
+import MenuIcon from '@mui/icons-material/Menu';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import EventIcon from '@mui/icons-material/Event';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props: any) {
-    const { window } = props;
+    const { window, logout } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
 
@@ -47,7 +47,15 @@ function ResponsiveDrawer(props: any) {
             <Toolbar />
             {/* <Divider /> */}
             <List>
-                <ListItem key={1} disablePadding>
+                <ListItem key={"new"} disablePadding>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <TodayIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={"Add New Task"} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={"today"} disablePadding>
                     <ListItemButton>
                         <ListItemIcon>
                             <TodayIcon />
@@ -55,7 +63,15 @@ function ResponsiveDrawer(props: any) {
                         <ListItemText primary={"Today's Tasks"} />
                     </ListItemButton>
                 </ListItem>
-                <ListItem key={2} disablePadding>
+                <ListItem key={"old"} disablePadding>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <TodayIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={"Old Pending Tasks"} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={"upcoming"} disablePadding>
                     <ListItemButton>
                         <ListItemIcon>
                             <EventIcon />
@@ -63,12 +79,20 @@ function ResponsiveDrawer(props: any) {
                         <ListItemText primary={"Upcoming Tasks"} />
                     </ListItemButton>
                 </ListItem>
-                <ListItem key={3} disablePadding>
+                <ListItem key={"completed"} disablePadding>
                     <ListItemButton>
                         <ListItemIcon>
                             <CalendarMonthIcon />
                         </ListItemIcon>
                         <ListItemText primary={"Completed Tasks"} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={"logout"} disablePadding onClick={logout}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={"Logout"} />
                     </ListItemButton>
                 </ListItem>
             </List>
