@@ -1,11 +1,11 @@
 import React, { lazy, Suspense } from 'react';
 
-const LazysideMenu = lazy(() => import('./sideMenu'));
+const LazySideMenu = lazy(() => import('./SideMenu'));
 
-const sideMenu = (props: JSX.IntrinsicAttributes & { children?: React.ReactNode; }) => (
+const SideMenu = (props: any & { children?: React.ReactNode; }) => (
   <Suspense fallback={null}>
-    <LazysideMenu {...props} />
+    <LazySideMenu {...props} />
   </Suspense>
 );
 
-export default sideMenu;
+export default SideMenu;

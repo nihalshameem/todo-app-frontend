@@ -1,87 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import ResponsiveDrawer from './components/ResponsiveDrawer';
-import { Box, Toolbar, Typography } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import { Box, Toolbar } from "@mui/material";
+import SignIn from "./components/SignIn/SignIn.lazy";
+import { apiUri, AuthFormIntserface } from "./config";
+import SideMenu from "./components/SideMenu/SideMenu.lazy";
+import NewTask from "./components/NewTask/NewTask.lazy";
+import CompletedTasks from "./components/CompletedTasks/CompletedTasks.lazy";
+import TodayTask from "./components/TodayTask/TodayTask.lazy";
+import OldTask from "./components/OldTask/OldTask.lazy";
+import UpcomingTask from "./components/UpcomingTask/UpcomingTask.lazy";
 
 const drawerWidth = 240;
 
 const App: React.FC = () => {
   const [todos, setTodos] = useState<any[]>([]);
-  const [text, setText] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchTodos();
+    if (localStorage.getItem("token")) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   const fetchTodos = async () => {
     try {
-      const response = await axios.get('http://localhost:3020/todos');
+      const response = await axios.get("http://localhost:5000/todos");
       setTodos(response.data);
     } catch (error) {
-      console.error('Error fetching todos:', error);
-    }
-  };
-
-  const addTodo = async () => {
-    try {
-      await axios.post('http://localhost:3020/todos/add', { text });
-      setText('');
-      fetchTodos();
-    } catch (error) {
-      console.error('Error adding todo:', error);
+      console.error("Error fetching todos:", error);
     }
   };
 
   const toggleTodo = async (id: string, completed: boolean) => {
     try {
-      await axios.put(`http://localhost:3020/todos/${id}`, { completed });
+      await axios.put(`http://localhost:5000/todos/${id}`, { completed });
       fetchTodos();
     } catch (error) {
-      console.error('Error toggling todo:', error);
+      console.error("Error toggling todo:", error);
     }
   };
 
   const deleteTodo = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:3020/todos/${id}`);
+      await axios.delete(`http://localhost:5000/todos/${id}`);
       fetchTodos();
     } catch (error) {
-      console.error('Error deleting todo:', error);
+      console.error("Error deleting todo:", error);
     }
   };
 
+  const handleAuth = async (req: AuthFormIntserface) => {
+    try {
+      await axios
+        .post(`${apiUri}auth/${req.mode}`, {
+          username: req.username,
+          password: req.password,
+        })
+        .then((res) => {
+          setIsLoggedIn(true);
+          res.data &&
+            res.data.token &&
+            localStorage.setItem("token", res.data.token);
+        })
+        .catch((e) => {
+          if (e?.response?.data?.message) {
+            alert(e?.response?.data?.message);
+          } else {
+            alert("something went wrong");
+          }
+        });
+    } catch (error) {
+      console.error("Error during authentication:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.clear();
+  };
+
+  const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+    return isLoggedIn ? children : <Navigate to="/signin" />;
+  };
+
   return (
-    <div className="App">
-      <Box sx={{ display: 'flex' }}>
-        <ResponsiveDrawer />
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-        >
-          <Toolbar />
-          <div className="main">
-            <h1>Todo App</h1>
-            <div>
-              <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
-              <button onClick={addTodo}>Add Todo</button>
-            </div>
-            <ul>
-              {todos.map(todo => (
-                <li key={todo._id}>
-                  <input
-                    type="checkbox"
-                    checked={todo.completed}
-                    onChange={() => toggleTodo(todo._id, !todo.completed)}
-                  />
-                  <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.text}</span>
-                  <button onClick={() => deleteTodo(todo._id)}>Delete</button>
-                </li>
-              ))}
-            </ul>
-          </div>
+    <Router>
+      <div className="App">
+        <Box sx={{ display: "flex" }}>
+          {isLoggedIn && <SideMenu logout={handleLogout} />}
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+            }}
+          >
+            <Toolbar />
+            <Routes>
+              <Route
+                path="/signin"
+                element={
+                  isLoggedIn ? (
+                    <Navigate to="/" />
+                  ) : (
+                    <SignIn submit={handleAuth} />
+                  )
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <NewTask />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/today-tasks"
+                element={
+                  <PrivateRoute>
+                    <TodayTask />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/old-tasks"
+                element={
+                  <PrivateRoute>
+                    <OldTask />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/upcoming-tasks"
+                element={
+                  <PrivateRoute>
+                    <UpcomingTask />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/completed-tasks"
+                element={
+                  <PrivateRoute>
+                    <CompletedTasks />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </Box>
         </Box>
-      </Box>
-    </div>
+      </div>
+    </Router>
   );
 };
 

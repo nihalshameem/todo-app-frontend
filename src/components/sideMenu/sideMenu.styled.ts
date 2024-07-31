@@ -1,4 +1,6 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-export const sideMenuWrapper = styled.div`
+export const SideMenuWrapper = styled.div`
+  background: transparent;
+  color: #fff;
 `;
