@@ -13,7 +13,6 @@ export const fetchUsersService = async (q: string = "") => {
         Authorization: token,
       },
     });
-    console.log("🚀 ~ fetchUsersService ~ token:", token)
     if (response.status === 200) {
       result.data = response.data;
     } else {

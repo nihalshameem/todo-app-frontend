@@ -8,16 +8,14 @@ interface AddtodoInterface {
 }
 
 export const addTodoService = async (req: AddtodoInterface) => {
-  console.log("🚀 ~ addTodoService ~ req:", req)
   try {
     const response = await axios.post(`${apiUri}todos/add`, req, {
       headers: {
         Authorization: token,
       },
     });
-    console.log("🚀 ~ addTodoService ~ response:", response)
     var result: DefaultResponse = {
-      data: response,
+      data: response.data,
       message: "",
       status: "success",
     };

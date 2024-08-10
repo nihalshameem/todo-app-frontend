@@ -77,7 +77,6 @@ const NewTask: FC<NewTaskProps> = () => {
             userId: "",
             taskDate: "",
           });
-          alert(res.message);
         } else {
           alert(res.message);
         }
@@ -91,7 +90,6 @@ const NewTask: FC<NewTaskProps> = () => {
     setLoading(true);
     fetchUsersService()
       .then((res) => {
-        console.log("🚀 ~ fetchUsersService ~ res:", res);
         if (res.status === "success") {
           res.data &&
             setOptions(
