@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+
 import {
   BrowserRouter as Router,
   Route,
@@ -7,19 +7,21 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Box, Toolbar } from "@mui/material";
+
 import SignIn from "./components/SignIn/SignIn.lazy";
-import { apiUri, AuthFormIntserface } from "./config";
-import SideMenu from "./components/SideMenu/SideMenu.lazy";
 import NewTask from "./components/NewTask/NewTask.lazy";
 import CompletedTasks from "./components/CompletedTasks/CompletedTasks.lazy";
 import TodayTask from "./components/TodayTask/TodayTask.lazy";
 import OldTask from "./components/OldTask/OldTask.lazy";
 import UpcomingTask from "./components/UpcomingTask/UpcomingTask.lazy";
+import SideMenu from "./components/SideMenu/SideMenu.lazy";
+import { authService } from "./services/authService";
+import { getErrorMsg } from "./config";
+import { AuthFormIntserface } from "./utils/interfaces";
 
 const drawerWidth = 240;
 
 const App: React.FC = () => {
-  const [todos, setTodos] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
@@ -28,56 +30,17 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const fetchTodos = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/todos");
-      setTodos(response.data);
-    } catch (error) {
-      console.error("Error fetching todos:", error);
-    }
-  };
-
-  const toggleTodo = async (id: string, completed: boolean) => {
-    try {
-      await axios.put(`http://localhost:5000/todos/${id}`, { completed });
-      fetchTodos();
-    } catch (error) {
-      console.error("Error toggling todo:", error);
-    }
-  };
-
-  const deleteTodo = async (id: string) => {
-    try {
-      await axios.delete(`http://localhost:5000/todos/${id}`);
-      fetchTodos();
-    } catch (error) {
-      console.error("Error deleting todo:", error);
-    }
-  };
-
   const handleAuth = async (req: AuthFormIntserface) => {
-    try {
-      await axios
-        .post(`${apiUri}auth/${req.mode}`, {
-          username: req.username,
-          password: req.password,
-        })
-        .then((res) => {
+    authService(req)
+      .then((res) => {
+        if (res.status === "success") {
           setIsLoggedIn(true);
-          res.data &&
-            res.data.token &&
-            localStorage.setItem("token", res.data.token);
-        })
-        .catch((e) => {
-          if (e?.response?.data?.message) {
-            alert(e?.response?.data?.message);
-          } else {
-            alert("something went wrong");
-          }
-        });
-    } catch (error) {
-      console.error("Error during authentication:", error);
-    }
+          localStorage.setItem("token", res.data.token);
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch((e) => alert(getErrorMsg(e)));
   };
 
   const handleLogout = () => {

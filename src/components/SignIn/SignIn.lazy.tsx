@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { AuthFormIntserface } from '../../config';
+import { AuthFormIntserface } from '../../utils/interfaces';
 
 const LazySignIn = lazy(() => import('./SignIn'));
 

@@ -15,7 +15,7 @@ export const addTodoService = async (req: AddtodoInterface) => {
       },
     });
     var result: DefaultResponse = {
-      data: response,
+      data: response.data,
       message: "",
       status: "success",
     };

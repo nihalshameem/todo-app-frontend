@@ -1,13 +1,9 @@
 export const apiUri: string = process.env.REACT_APP_API_URL || "";
 
-export interface AuthFormIntserface {
-  username: string;
-  password: string;
-  mode: "login" | "signup";
-}
-
 export const getErrorMsg = (e: any) => {
-  if (e && e.message) {
+  if (e?.response?.data?.message) {
+    return e.response.data.message;
+  } else if (e && e.message) {
     return e.message;
   }
   return "An error occurred while adding the todo.";
