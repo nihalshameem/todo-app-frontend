@@ -1,10 +1,20 @@
-import { FC, useState } from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { FC, useEffect, useMemo, useState } from "react";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
+import debounce from "lodash.debounce";
 
 import { NewTaskWrapper } from "./NewTask.styled";
 
 import { getErrorMsg } from "../../config";
 import { addTodoService } from "../../services/todoService";
+import { fetchUsersService } from "../../services/userService";
+import { OptionType } from "../../utils/interfaces";
 
 interface NewTaskProps {}
 
@@ -12,6 +22,9 @@ const NewTask: FC<NewTaskProps> = () => {
   const [text, setText] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [taskDate, setTaskDate] = useState<string>("");
+  const [options, setOptions] = useState<OptionType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>("");
 
   const [errors, setErrors] = useState({
     text: "",
@@ -57,6 +70,7 @@ const NewTask: FC<NewTaskProps> = () => {
           setText("");
           setUserId("");
           setTaskDate("");
+          setInputValue("");
           setErrors({
             text: "",
             assignedBy: "",
@@ -71,6 +85,51 @@ const NewTask: FC<NewTaskProps> = () => {
       .catch((e) => {
         alert(getErrorMsg(e.message));
       });
+  };
+
+  const fetchOptions = async (query: string) => {
+    setLoading(true);
+    fetchUsersService()
+      .then((res) => {
+        console.log("🚀 ~ fetchUsersService ~ res:", res);
+        if (res.status === "success") {
+          res.data &&
+            setOptions(
+              res.data.map((item: any) => ({
+                label: item.username,
+                value: item._id,
+              }))
+            );
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch((e) => {
+        alert(getErrorMsg(e.message));
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {}, []);
+
+  // Debounced version of fetchOptions to avoid excessive API calls
+  const debouncedFetchOptions = useMemo(() => debounce(fetchOptions, 500), []);
+
+  useEffect(() => {
+    if (inputValue) {
+      debouncedFetchOptions(inputValue);
+    } else {
+      setOptions([]);
+    }
+  }, [inputValue, debouncedFetchOptions]);
+
+  const handleChange = (
+    event: React.SyntheticEvent,
+    value: OptionType | null
+  ) => {
+    if (value) {
+      setUserId(value.value);
+    }
   };
 
   return (
@@ -109,15 +168,36 @@ const NewTask: FC<NewTaskProps> = () => {
             error={Boolean(errors.text)}
             helperText={errors.text}
           />
-          <TextField
-            label="Assigned To"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            error={Boolean(errors.userId)}
-            helperText={errors.userId}
+          <Autocomplete
+            options={options}
+            getOptionLabel={(option) => option.label}
+            filterOptions={(x) => x} // Disable built-in filtering to rely entirely on API search
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Assigned To"
+                variant="outlined"
+                onChange={(e) => setInputValue(e.target.value)}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {loading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+                error={Boolean(errors.userId)}
+                helperText={errors.userId}
+              />
+            )}
+            onChange={handleChange}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
+            loading={loading}
           />
           <TextField
             label="Task Date"

@@ -59,7 +59,7 @@ const SideMenu: FC<any> = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={"today"} disablePadding>
-          <ListItemButton component={Link} to="/">
+          <ListItemButton component={Link} to="/today-tasks">
             <ListItemIcon>
               <TodayIcon className="white-icon" />
             </ListItemIcon>
@@ -67,7 +67,7 @@ const SideMenu: FC<any> = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={"old"} disablePadding>
-          <ListItemButton component={Link} to="/">
+          <ListItemButton component={Link} to="/old-tasks">
             <ListItemIcon>
               <TodayIcon className="white-icon" />
             </ListItemIcon>
@@ -75,7 +75,7 @@ const SideMenu: FC<any> = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={"upcoming"} disablePadding>
-          <ListItemButton component={Link} to="/">
+          <ListItemButton component={Link} to="/upcoming-tasks">
             <ListItemIcon>
               <EventIcon className="white-icon" />
             </ListItemIcon>
