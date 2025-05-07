@@ -14,10 +14,10 @@ import CompletedTasks from "./components/CompletedTasks/CompletedTasks.lazy";
 import TodayTask from "./components/TodayTask/TodayTask.lazy";
 import OldTask from "./components/OldTask/OldTask.lazy";
 import UpcomingTask from "./components/UpcomingTask/UpcomingTask.lazy";
-import SideMenu from "./components/SideMenu/SideMenu.lazy";
 import { authService } from "./services/authService";
 import { getErrorMsg } from "./config";
 import { AuthFormIntserface } from "./utils/interfaces";
+import SideMenu from "./components/sideMenu/sideMenu.lazy";
 
 const drawerWidth = 240;
 
